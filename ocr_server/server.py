@@ -36,7 +36,8 @@ def save_images(request_id, images):
 def upload_images():
     try:
         images = request.files.values()
-        type_doc = request.data['type_doc']
+        # type_doc = request.data['type_doc']
+        type_doc = "nop-tien"
         logger.info("Received new request from {}".format(request.remote_addr))
 
         request_id = time.strftime("%Y%M%d") + "_" + str(time.time())
