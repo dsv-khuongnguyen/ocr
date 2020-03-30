@@ -1,11 +1,30 @@
 
 import re
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as distance
+import string
+import locale
+
+locale.setlocale( locale.LC_ALL, '' )
+punct = set(string.punctuation)
+
+def remove_punct (text) :
+    for i in punct :
+        text = text.replace(i, '')
+    return text
+
+def format_money (text) :
+    if text != None :
+        a = len(text)%3
+        b = len(text)//3
+        print(b)
+        for i in range(1,b) :
+            text = text.replace(text[-(4*i)], ','+text[-(4*i)])
+            print(text)
+        return text
 
 currencys = ['VND', 'USD', 'JPY', 'EUR', 'GBP', 'AUD', 'CAD']
 
-def read_file (data):
-    # data = open(filename, 'r').read()
+def read_file (data) :
     return data
 
 def digit_detect (text) :
@@ -22,6 +41,7 @@ def replace_char (text) :
     text = text.replace('I', '1')
     text = text.replace("l", '1')
     text = text.replace('B', '8')
+    text = text.replace('§', '8')
     text = text.replace('O', '0')
     text = text.replace('o', '0')
     return text
@@ -32,7 +52,7 @@ def replace_char_money (text):
     return text
 
 def acc_detect (text) :
-    a = re.findall(r'[a-zA-Z0-9]+', text)
+    a = re.findall(r'[a-zA-Z0-9§]+', text)
     return a
 
 
@@ -51,7 +71,7 @@ def detect_currency(filename):
         thres = 0.5
         for i in currencys :
             for j in data :
-                if distance(i, j) < thres:
+                if distance(i, remove_punct(j)) < thres:
                     cur = i
                 else:
                     continue
@@ -73,6 +93,7 @@ def read_data (currency_file, stk_file, money_file) :
     result = {}
     result['currency'] = detect_currency(currency_file)
     result['stk'] = stk_detect(stk_file)
+    result['money'] = 0
 
     data = read_file(money_file).split('\n')
     for text in data :
@@ -87,7 +108,4 @@ def read_data (currency_file, stk_file, money_file) :
                     continue
         else: continue
     return result
-
-# for i in range(11):
-#     print(read_data('ruttien/currency'+str(i+1)+'.txt', 'ruttien/stk'+str(i+1)+'.txt', 'ruttien/money'+str(i+1)+'.txt'))
 
