@@ -18,7 +18,6 @@ def execute_ocr(type_doc="", file_name=""):
     except Exception as e:
         raise e
     finally:
-        print(img.shape)            
         ocr_result = {}
         
         for key in config[type_doc]:
@@ -33,25 +32,27 @@ def execute_ocr(type_doc="", file_name=""):
                 dim = (width, height)
                 resized = cv2.resize(crop_img, dim)
                 if field[6] == 1:
-                    ret, resized = cv2.threshold(resized,200,255,cv2.THRESH_TRUNC)
+                    ret, resized = cv2.threshold(resized,field[8],255,cv2.THRESH_TRUNC)
                 
                 conf = ("--psm 11 --psm 3")
                 result = pytesseract.image_to_string(resized)
                 if (field[7] == 1):
                     conf = ("-l vie --psm 11 --psm 3")
                     result = pytesseract.image_to_string(resized, config=conf)
-                                   
+                
+                   
                 ocr_result[key] = result
+                # if(key == "stk"):
+                #     print(result) 
+                #     cv2.imshow("money"+str(i), resized)
+                #     cv2.waitKey(0)
 
         if(type_doc == "rut-tien"):
             return ruttien_helper.read_data(ocr_result['currency'],ocr_result['stk'],ocr_result['money'])
         elif(type_doc == "nop-tien"):
             return chuyentien_helper.read_data(ocr_result['currency'],ocr_result['stk'],ocr_result['money'])
         elif(type_doc == "tiet-kiem"):
-            return tietkiem_helper.read_data(ocr_result['kyhan'],ocr_result['laisuat'],ocr_result['currency'],ocr_result['money'],ocr_result['stks'],ocr_result['stk'])
+            return tietkiem_helper.read_data(ocr_result['stk'],ocr_result['stks'],ocr_result['money'],ocr_result['currency'],ocr_result['kyhan'],ocr_result['laisuat'])
         elif(type_doc == "tat-toan"):
             return tattoan_helper.read_data(ocr_result['money'],ocr_result['stk'],ocr_result['stt'])       
-   
-    
-# for i in range(1,4):
-#     print(execute_ocr(type_doc='tat-toan',file_name="/home/tekai/Desktop/PYTHON/tesseract-python/tat-toan/{}.png".format(i)))
+ 
